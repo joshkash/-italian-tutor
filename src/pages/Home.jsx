@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { vocabulary } from '../data/vocabulary'
 import { grammarLessons } from '../data/grammar'
+import { courseDays } from '../data/course'
 
 const DAYS_IT   = ['Domenica','Lunedì','Martedì','Mercoledì','Giovedì','Venerdì','Sabato']
 const MONTHS_IT = ['gennaio','febbraio','marzo','aprile','maggio','giugno','luglio','agosto','settembre','ottobre','novembre','dicembre']
@@ -35,7 +36,7 @@ const features = [
 ]
 
 export default function Home() {
-  const [stats, setStats] = useState({ knownWords: 0, completedLessons: 0, quizzesCompleted: 0, chatMessages: 0 })
+  const [stats, setStats] = useState({ knownWords: 0, completedLessons: 0, quizzesCompleted: 0, chatMessages: 0, courseDays: 0 })
   const [wordOfDay, setWordOfDay] = useState(null)
 
   useEffect(() => {
@@ -43,9 +44,13 @@ export default function Home() {
     const lessons = JSON.parse(localStorage.getItem('italianTutor_completedLessons')|| '[]')
     const quiz    = JSON.parse(localStorage.getItem('italianTutor_quizStats')       || '{"count":0}')
     const chat    = JSON.parse(localStorage.getItem('italianTutor_chatStats')       || '{"count":0}')
-    setStats({ knownWords: known.length, completedLessons: lessons.length, quizzesCompleted: quiz.count, chatMessages: chat.count })
+    const course  = JSON.parse(localStorage.getItem('italianTutor_courseProgress')  || '[]')
+    setStats({ knownWords: known.length, completedLessons: lessons.length, quizzesCompleted: quiz.count, chatMessages: chat.count, courseDays: course.length })
     setWordOfDay(vocabulary[new Date().getDate() % vocabulary.length])
   }, [])
+
+  const coursePct  = Math.round((stats.courseDays / courseDays.length) * 100)
+  const nextDay    = Math.min(stats.courseDays + 1, courseDays.length)
 
   const progressPct = Math.round((stats.knownWords / vocabulary.length) * 100)
 
@@ -60,6 +65,31 @@ export default function Home() {
           What will you learn today?
         </p>
       </div>
+
+      {/* 30-Day Course banner */}
+      <Link
+        to="/course"
+        className="block bg-gradient-to-br from-terra-500 to-terra-700 rounded-2xl p-6 mb-10 text-white relative overflow-hidden hover:shadow-xl transition-all hover:-translate-y-0.5"
+      >
+        <div className="absolute -top-6 -right-4 text-[130px] opacity-10 leading-none select-none pointer-events-none">📅</div>
+        <div className="relative">
+          <p className="text-terra-100 text-xs font-semibold tracking-widest uppercase mb-1">Your Learning Path</p>
+          <h2 className="font-display text-2xl font-bold mb-3">The 30-Day Italian Course</h2>
+          <div className="flex items-center gap-4 mb-3">
+            <div className="flex-1 h-2.5 bg-white/20 rounded-full overflow-hidden">
+              <div className="h-full bg-white rounded-full transition-all duration-700" style={{ width: `${coursePct}%` }} />
+            </div>
+            <span className="font-bold text-sm whitespace-nowrap">{stats.courseDays}/{courseDays.length} days</span>
+          </div>
+          <p className="text-white/90 text-sm font-medium">
+            {stats.courseDays === 0
+              ? '▶ Start Day 1: Greetings & Politeness'
+              : stats.courseDays >= courseDays.length
+                ? '🎉 Course complete — complimenti!'
+                : `▶ Continue to Day ${nextDay}: ${courseDays[nextDay - 1].title}`}
+          </p>
+        </div>
+      </Link>
 
       {/* Stats row */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10">

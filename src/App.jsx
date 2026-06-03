@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import Navbar from './components/Navbar'
 import Home from './pages/Home'
+import Course from './pages/Course'
 import Flashcards from './pages/Flashcards'
 import Grammar from './pages/Grammar'
 import Quizzes from './pages/Quizzes'
@@ -14,6 +15,7 @@ export default function App() {
         <main className="pt-16">
           <Routes>
             <Route path="/"           element={<Home />}       />
+            <Route path="/course"     element={<Course />}     />
             <Route path="/flashcards" element={<Flashcards />} />
             <Route path="/grammar"    element={<Grammar />}    />
             <Route path="/quizzes"    element={<Quizzes />}    />
