@@ -1086,4 +1086,4 @@ export const vocabulary = [
 
 export const levels = ['A1', 'A2', 'B1', 'B2', 'C1']
 export const categories = [...new Set(vocabulary.map(w => w.category))]
-export const TOTAL_DAYS = 97
+export const TOTAL_DAYS = 100
