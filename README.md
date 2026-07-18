@@ -6,8 +6,8 @@ A beautiful, full-featured Italian language learning app built with React + Vite
 
 | Feature | What it does |
 |---|---|
-| 📅 **30-Day Course** | A guided day-by-day path (A1→B1): each day has a theme, vocabulary, a grammar focus, a cultural tip, and progress tracking |
-| 🃏 **Flashcards** | 171 words (A1–C1) with 3D flip animation, level/category filters, and progress tracking |
+| 📅 **97-Day Course** | A guided day-by-day path (A1→C1): each day has a theme, vocabulary, a grammar focus, a cultural tip, and progress tracking |
+| 🃏 **Flashcards** | 1000 words (A1–C1) with 3D flip animation, level/category filters, and progress tracking |
 | 📚 **Grammar** | 8 lessons with reference tables, highlighted examples, and completion tracking |
 | ✏️ **Quizzes** | Italian↔English translation quiz with instant feedback and scoring (A–F grade) |
 | 💬 **AI Chat** | Conversation practice with "Sofia", powered by Claude (Anthropic API) |

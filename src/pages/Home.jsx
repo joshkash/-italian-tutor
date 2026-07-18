@@ -74,7 +74,7 @@ export default function Home() {
         <div className="absolute -top-6 -right-4 text-[130px] opacity-10 leading-none select-none pointer-events-none">📅</div>
         <div className="relative">
           <p className="text-terra-100 text-xs font-semibold tracking-widest uppercase mb-1">Your Learning Path</p>
-          <h2 className="font-display text-2xl font-bold mb-3">The 30-Day Italian Course</h2>
+          <h2 className="font-display text-2xl font-bold mb-3">The {courseDays.length}-Day Italian Course</h2>
           <div className="flex items-center gap-4 mb-3">
             <div className="flex-1 h-2.5 bg-white/20 rounded-full overflow-hidden">
               <div className="h-full bg-white rounded-full transition-all duration-700" style={{ width: `${coursePct}%` }} />

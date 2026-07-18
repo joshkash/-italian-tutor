@@ -156,7 +156,7 @@ export default function Course() {
     <div className="page-enter max-w-5xl mx-auto px-4 py-10">
       <div className="mb-8">
         <h1 className="font-display text-4xl md:text-5xl font-bold text-navy-900 mb-2">
-          30-Day Italian Course 🇮🇹
+          {courseDays.length}-Day Italian Course 🇮🇹
         </h1>
         <p className="text-gray-500 text-lg">
           A guided path from "Ciao" to conversation. One day at a time.
