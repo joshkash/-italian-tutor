@@ -1,10 +1,13 @@
 import { useState, useEffect } from 'react'
 import { vocabulary, levels } from '../data/vocabulary'
+import { sentences } from '../data/sentences'
 
 export default function Flashcards() {
   const [selectedLevels, setSelectedLevels]     = useState(['A1'])
   const [selectedCats, setSelectedCats]         = useState([])
+  const [includeSentences, setIncludeSentences] = useState(true)
   const [knownWords, setKnownWords]             = useState([])
+  const [knownSentences, setKnownSentences]     = useState([])
   const [currentIndex, setCurrentIndex]         = useState(0)
   const [isFlipped, setIsFlipped]               = useState(false)
   const [session, setSession]                   = useState({ known: 0, learning: 0 })
@@ -12,6 +15,7 @@ export default function Flashcards() {
 
   useEffect(() => {
     setKnownWords(JSON.parse(localStorage.getItem('italianTutor_knownWords') || '[]'))
+    setKnownSentences(JSON.parse(localStorage.getItem('italianTutor_knownSentences') || '[]'))
   }, [])
 
   const saveKnown = (words) => {
@@ -19,12 +23,31 @@ export default function Flashcards() {
     localStorage.setItem('italianTutor_knownWords', JSON.stringify(words))
   }
 
-  // Derive filtered card list
-  const filtered = vocabulary.filter(w => {
-    const lvlOk = selectedLevels.length === 0 || selectedLevels.includes(w.level)
-    const catOk = selectedCats.length === 0   || selectedCats.includes(w.category)
-    return lvlOk && catOk
-  })
+  const saveKnownSentences = (ids) => {
+    setKnownSentences(ids)
+    localStorage.setItem('italianTutor_knownSentences', JSON.stringify(ids))
+  }
+
+  // Derive filtered card list — words plus (optionally) sentences, tagged by kind
+  const filteredWords = vocabulary
+    .filter(w => {
+      const lvlOk = selectedLevels.length === 0 || selectedLevels.includes(w.level)
+      const catOk = selectedCats.length === 0   || selectedCats.includes(w.category)
+      return lvlOk && catOk
+    })
+    .map(w => ({ ...w, kind: 'word' }))
+
+  const filteredSentences = includeSentences
+    ? sentences
+        .filter(s => {
+          const lvlOk = selectedLevels.length === 0 || selectedLevels.includes(s.level)
+          const catOk = selectedCats.length === 0   || selectedCats.includes(s.category)
+          return lvlOk && catOk
+        })
+        .map(s => ({ ...s, kind: 'sentence' }))
+    : []
+
+  const filtered = [...filteredWords, ...filteredSentences]
 
   const card = filtered[currentIndex]
 
@@ -45,13 +68,22 @@ export default function Flashcards() {
     setCurrentIndex(0); setIsFlipped(false)
   }
 
+  const toggleSentences = () => {
+    setIncludeSentences(v => !v)
+    setCurrentIndex(0); setIsFlipped(false)
+  }
+
   const advance = (delta = 1) => {
     setIsFlipped(false)
     setTimeout(() => setCurrentIndex(i => Math.max(0, Math.min(i + delta, filtered.length - 1))), 200)
   }
 
   const handleKnow = () => {
-    if (!knownWords.includes(card.id)) saveKnown([...knownWords, card.id])
+    if (card.kind === 'sentence') {
+      if (!knownSentences.includes(card.id)) saveKnownSentences([...knownSentences, card.id])
+    } else if (!knownWords.includes(card.id)) {
+      saveKnown([...knownWords, card.id])
+    }
     setSession(s => ({ ...s, known: s.known + 1 }))
     if (currentIndex < filtered.length - 1) { advance(1) } else { setSessionComplete(true) }
   }
@@ -67,7 +99,7 @@ export default function Flashcards() {
   }
 
   const progress = filtered.length > 0 ? ((currentIndex + 1) / filtered.length) * 100 : 0
-  const isKnown  = card && knownWords.includes(card.id)
+  const isKnown  = card && (card.kind === 'sentence' ? knownSentences.includes(card.id) : knownWords.includes(card.id))
 
   if (filtered.length === 0) {
     return (
@@ -107,6 +139,27 @@ export default function Flashcards() {
                   </button>
                 ))}
               </div>
+            </div>
+
+            {/* Sentence toggle */}
+            <div className="mb-5">
+              <label className="flex items-center justify-between cursor-pointer">
+                <span className="text-xs font-semibold text-gray-400 uppercase tracking-widest">Include Sentences</span>
+                <button
+                  type="button"
+                  onClick={toggleSentences}
+                  className={`w-10 h-5.5 rounded-full transition-colors relative flex-shrink-0
+                    ${includeSentences ? 'bg-terra-500' : 'bg-stone-200'}`}
+                  style={{ height: '1.375rem' }}
+                  aria-pressed={includeSentences}
+                >
+                  <span
+                    className={`absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full transition-transform
+                      ${includeSentences ? 'translate-x-4.5' : 'translate-x-0'}`}
+                    style={{ transform: includeSentences ? 'translateX(1.125rem)' : 'translateX(0)' }}
+                  />
+                </button>
+              </label>
             </div>
 
             {/* Category filter */}
@@ -208,28 +261,40 @@ export default function Flashcards() {
                         {card?.level}
                       </span>
                       <span className="bg-white/10 text-gray-300 text-xs px-3 py-1 rounded-full">
-                        {card?.category}
+                        {card?.kind === 'sentence' ? '🗣️ Sentence' : card?.category}
                       </span>
                     </div>
-                    <h2 className="font-display text-5xl md:text-6xl font-bold text-white mb-4 text-center">
-                      {card?.italian}
-                    </h2>
-                    <p className="text-gray-500 italic text-base font-display">
-                      /{card?.pronunciation}/
-                    </p>
+                    {card?.kind === 'sentence' ? (
+                      <h2 className="font-display text-2xl md:text-3xl font-bold text-white mb-4 text-center max-w-lg">
+                        {card?.italian}
+                      </h2>
+                    ) : (
+                      <>
+                        <h2 className="font-display text-5xl md:text-6xl font-bold text-white mb-4 text-center">
+                          {card?.italian}
+                        </h2>
+                        <p className="text-gray-500 italic text-base font-display">
+                          /{card?.pronunciation}/
+                        </p>
+                      </>
+                    )}
                     <p className="text-gray-600 text-xs mt-8">tap to reveal →</p>
                   </div>
 
                   {/* Back — English */}
                   <div className="card-face card-back-face bg-terra-500 rounded-3xl p-8 flex flex-col items-center justify-center shadow-xl">
-                    <p className="text-terra-200 text-sm mb-3">English meaning</p>
-                    <h2 className="font-display text-4xl font-bold text-white mb-6 text-center">
+                    <p className="text-terra-200 text-sm mb-3">
+                      {card?.kind === 'sentence' ? 'English translation' : 'English meaning'}
+                    </p>
+                    <h2 className={`font-display font-bold text-white text-center ${card?.kind === 'sentence' ? 'text-2xl md:text-3xl mb-2' : 'text-4xl mb-6'}`}>
                       {card?.english}
                     </h2>
-                    <div className="bg-white/20 rounded-xl p-4 text-center w-full max-w-sm">
-                      <p className="text-white font-medium">{card?.example_it}</p>
-                      <p className="text-terra-100 text-sm mt-1">{card?.example_en}</p>
-                    </div>
+                    {card?.kind !== 'sentence' && (
+                      <div className="bg-white/20 rounded-xl p-4 text-center w-full max-w-sm">
+                        <p className="text-white font-medium">{card?.example_it}</p>
+                        <p className="text-terra-100 text-sm mt-1">{card?.example_en}</p>
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>

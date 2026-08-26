@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { courseDays } from '../data/course'
 import { vocabulary } from '../data/vocabulary'
 import { grammarLessons } from '../data/grammar'
+import { sentences } from '../data/sentences'
 
 const levelBadge = {
   A1: 'bg-green-100 text-green-700',
@@ -37,6 +38,24 @@ function WordCard({ word }) {
   )
 }
 
+// A small sentence card that flips between Italian and English on click
+function SentenceCard({ sentence }) {
+  const [show, setShow] = useState(false)
+  return (
+    <button
+      onClick={() => setShow(s => !s)}
+      className="text-left bg-navy-900 rounded-xl p-4 hover:bg-navy-800 transition-colors"
+    >
+      <p className="font-display text-white font-medium">{sentence.italian}</p>
+      {show ? (
+        <p className="text-terra-300 text-sm mt-1.5">{sentence.english}</p>
+      ) : (
+        <p className="text-gray-500 text-xs mt-1.5">tap to reveal translation</p>
+      )}
+    </button>
+  )
+}
+
 export default function Course() {
   const [completed, setCompleted] = useState([])
   const [openDay, setOpenDay]     = useState(null)
@@ -54,6 +73,7 @@ export default function Course() {
   const pct = Math.round((completed.length / courseDays.length) * 100)
   const selected = openDay ? courseDays.find(d => d.day === openDay) : null
   const selectedWords = selected ? vocabulary.filter(w => w.day === selected.day) : []
+  const selectedSentences = selected ? sentences.filter(s => s.day === selected.day) : []
   const selectedGrammar = selected?.grammarId ? grammarLessons.find(g => g.id === selected.grammarId) : null
 
   // ── Day detail view ─────────────────────────────────────────────────────
@@ -119,6 +139,18 @@ export default function Course() {
               </h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {selectedWords.map(w => <WordCard key={w.id} word={w} />)}
+              </div>
+            </div>
+          )}
+
+          {/* Key Sentences */}
+          {selectedSentences.length > 0 && (
+            <div className="mb-7">
+              <h2 className="font-display text-lg font-semibold text-navy-900 mb-3">
+                Key Sentences <span className="text-gray-400 text-sm font-sans">({selectedSentences.length})</span>
+              </h2>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {selectedSentences.map(s => <SentenceCard key={s.id} sentence={s} />)}
               </div>
             </div>
           )}

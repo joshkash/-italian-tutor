@@ -1,25 +1,36 @@
 import { useState } from 'react'
 import { vocabulary, levels } from '../data/vocabulary'
+import { sentences } from '../data/sentences'
 
 // ── Question generator ─────────────────────────────────────────────────────
-function buildQuestions(level, count, type) {
-  const pool = level === 'All' ? vocabulary : vocabulary.filter(w => w.level === level)
+function buildQuestions(level, count, type, contentType) {
+  const wordPool = (level === 'All' ? vocabulary : vocabulary.filter(w => w.level === level))
+    .map(w => ({ ...w, kind: 'word' }))
+  const sentPool = (level === 'All' ? sentences : sentences.filter(s => s.level === level))
+    .map(s => ({ ...s, kind: 'sentence' }))
+
+  const pool = contentType === 'words' ? wordPool
+    : contentType === 'sentences' ? sentPool
+    : [...wordPool, ...sentPool]
+
   if (pool.length < 4) return []
   const shuffled = [...pool].sort(() => Math.random() - 0.5)
   const selected = shuffled.slice(0, Math.min(count, shuffled.length))
 
-  return selected.map(word => {
-    const distractors = pool
-      .filter(w => w.id !== word.id)
+  return selected.map(item => {
+    const sameKind = pool.filter(p => p.kind === item.kind && p.id !== item.id)
+    const otherKind = pool.filter(p => p.kind !== item.kind)
+    const distractors = [...sameKind, ...otherKind]
       .sort(() => Math.random() - 0.5)
       .slice(0, 3)
 
     if (type === 'it-en') {
-      const opts = [word.english, ...distractors.map(w => w.english)].sort(() => Math.random() - 0.5)
-      return { prompt: word.italian, sub: `/${word.pronunciation}/`, correct: word.english, options: opts, flag: '🇮🇹 → 🇬🇧' }
+      const opts = [item.english, ...distractors.map(d => d.english)].sort(() => Math.random() - 0.5)
+      const sub = item.kind === 'sentence' ? '🗣️ Sentence' : `/${item.pronunciation}/`
+      return { prompt: item.italian, sub, correct: item.english, options: opts, flag: '🇮🇹 → 🇬🇧', kind: item.kind }
     } else {
-      const opts = [word.italian, ...distractors.map(w => w.italian)].sort(() => Math.random() - 0.5)
-      return { prompt: word.english, sub: `${word.category} · ${word.level}`, correct: word.italian, options: opts, flag: '🇬🇧 → 🇮🇹' }
+      const opts = [item.italian, ...distractors.map(d => d.italian)].sort(() => Math.random() - 0.5)
+      return { prompt: item.english, sub: `${item.category} · ${item.level}`, correct: item.italian, options: opts, flag: '🇬🇧 → 🇮🇹', kind: item.kind }
     }
   })
 }
@@ -37,7 +48,7 @@ const grade = (pct) => pct >= 90 ? 'A' : pct >= 75 ? 'B' : pct >= 60 ? 'C' : pct
 // ── Component ──────────────────────────────────────────────────────────────
 export default function Quizzes() {
   const [screen, setScreen]     = useState('setup')   // setup | quiz | results
-  const [cfg, setCfg]           = useState({ level: 'A1', count: 10, type: 'it-en' })
+  const [cfg, setCfg]           = useState({ level: 'A1', count: 10, type: 'it-en', contentType: 'words' })
   const [questions, setQs]      = useState([])
   const [qi, setQi]             = useState(0)
   const [picked, setPicked]     = useState(null)
@@ -45,7 +56,7 @@ export default function Quizzes() {
   const [log, setLog]           = useState([])
 
   const startQuiz = () => {
-    const qs = buildQuestions(cfg.level, cfg.count, cfg.type)
+    const qs = buildQuestions(cfg.level, cfg.count, cfg.type, cfg.contentType)
     if (!qs.length) return
     setQs(qs); setQi(0); setPicked(null); setScore(0); setLog([]); setScreen('quiz')
   }
@@ -100,6 +111,24 @@ export default function Quizzes() {
                 className={`px-4 py-2 rounded-xl text-sm font-medium transition-colors
                   ${cfg.count === n ? 'bg-navy-900 text-white' : 'bg-stone-100 text-gray-600 hover:bg-stone-200'}`}
               >{n}</button>
+            ))}
+          </div>
+        </div>
+
+        {/* Content */}
+        <div>
+          <label className="block text-sm font-semibold text-gray-700 mb-3">Content</label>
+          <div className="flex flex-wrap gap-2">
+            {[
+              { key: 'words', label: 'Words' },
+              { key: 'sentences', label: 'Sentences' },
+              { key: 'mixed', label: 'Mixed' },
+            ].map(ct => (
+              <button key={ct.key}
+                onClick={() => setCfg(c => ({ ...c, contentType: ct.key }))}
+                className={`px-4 py-2 rounded-xl text-sm font-medium transition-colors
+                  ${cfg.contentType === ct.key ? 'bg-terra-500 text-white' : 'bg-stone-100 text-gray-600 hover:bg-stone-200'}`}
+              >{ct.label}</button>
             ))}
           </div>
         </div>
@@ -201,7 +230,7 @@ export default function Quizzes() {
       {/* Question card */}
       <div className="bg-navy-900 rounded-3xl p-8 text-center mb-5">
         <p className="text-gray-400 text-sm mb-2">{q.flag} — Translate</p>
-        <h2 className="font-display text-5xl font-bold text-white mb-3">{q.prompt}</h2>
+        <h2 className={`font-display font-bold text-white mb-3 ${q.kind === 'sentence' ? 'text-2xl md:text-3xl' : 'text-5xl'}`}>{q.prompt}</h2>
         <p className="text-gray-600 text-sm italic">{q.sub}</p>
       </div>
 
