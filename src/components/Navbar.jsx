@@ -40,7 +40,7 @@ export default function Navbar() {
               className={`
                 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200
                 flex items-center gap-1.5
-                ${location.pathname === link.to
+                ${(link.to === '/' ? location.pathname === '/' : location.pathname.startsWith(link.to))
                   ? 'bg-terra-500 text-white'
                   : 'text-gray-300 hover:text-white hover:bg-white/10'}
               `}
@@ -75,7 +75,7 @@ export default function Navbar() {
               onClick={() => setOpen(false)}
               className={`
                 px-4 py-3 rounded-xl text-sm font-medium transition-all flex items-center gap-2
-                ${location.pathname === link.to
+                ${(link.to === '/' ? location.pathname === '/' : location.pathname.startsWith(link.to))
                   ? 'bg-terra-500 text-white'
                   : 'text-gray-300 hover:text-white hover:bg-white/10'}
               `}
