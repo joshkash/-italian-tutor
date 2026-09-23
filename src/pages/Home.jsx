@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { vocabulary } from '../data/vocabulary'
 import { grammarLessons } from '../data/grammar'
 import { courseDays } from '../data/course'
+import { loadProgress, nextDayToStudy, timeAgo } from '../utils/courseProgress'
 
 const DAYS_IT   = ['Domenica','Lunedì','Martedì','Mercoledì','Giovedì','Venerdì','Sabato']
 const MONTHS_IT = ['gennaio','febbraio','marzo','aprile','maggio','giugno','luglio','agosto','settembre','ottobre','novembre','dicembre']
@@ -50,7 +51,9 @@ export default function Home() {
   }, [])
 
   const coursePct  = Math.round((stats.courseDays / courseDays.length) * 100)
-  const nextDay    = Math.min(stats.courseDays + 1, courseDays.length)
+  const { completed: courseDone, last: lastClass } = loadProgress()
+  const nextDay    = nextDayToStudy(courseDone, courseDays.length)
+  const resumeDay  = lastClass && !courseDone.includes(lastClass.day) ? lastClass.day : nextDay
 
   const progressPct = Math.round((stats.knownWords / vocabulary.length) * 100)
 
@@ -68,7 +71,7 @@ export default function Home() {
 
       {/* 30-Day Course banner */}
       <Link
-        to="/course"
+        to={resumeDay ? `/course/${resumeDay}` : '/course'}
         className="block bg-gradient-to-br from-terra-500 to-terra-700 rounded-2xl p-6 mb-10 text-white relative overflow-hidden hover:shadow-xl transition-all hover:-translate-y-0.5"
       >
         <div className="absolute -top-6 -right-4 text-[130px] opacity-10 leading-none select-none pointer-events-none">📅</div>
@@ -82,11 +85,11 @@ export default function Home() {
             <span className="font-bold text-sm whitespace-nowrap">{stats.courseDays}/{courseDays.length} days</span>
           </div>
           <p className="text-white/90 text-sm font-medium">
-            {stats.courseDays === 0
-              ? '▶ Start Day 1: Greetings & Politeness'
-              : stats.courseDays >= courseDays.length
-                ? '🎉 Course complete — complimenti!'
-                : `▶ Continue to Day ${nextDay}: ${courseDays[nextDay - 1].title}`}
+            {!resumeDay
+              ? '🎉 Course complete — complimenti!'
+              : lastClass
+                ? `▶ Continue Day ${resumeDay}: ${courseDays[resumeDay - 1].title} · last class ${timeAgo(lastClass.date)}`
+                : `▶ Start Day ${resumeDay}: ${courseDays[resumeDay - 1].title}`}
           </p>
         </div>
       </Link>

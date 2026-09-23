@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { vocabulary, levels } from '../data/vocabulary'
 import { sentences } from '../data/sentences'
+import { readLocal, writeLocal } from '../utils/storage'
 
 // ── Question generator ─────────────────────────────────────────────────────
 function buildQuestions(level, count, type, contentType) {
@@ -74,8 +75,8 @@ export default function Quizzes() {
     if (qi < questions.length - 1) {
       setQi(i => i + 1)
     } else {
-      const stats = JSON.parse(localStorage.getItem('italianTutor_quizStats') || '{"count":0}')
-      localStorage.setItem('italianTutor_quizStats', JSON.stringify({ count: stats.count + 1 }))
+      const stats = readLocal('italianTutor_quizStats', { count: 0 })
+      writeLocal('italianTutor_quizStats', { count: stats.count + 1 })
       setScreen('results')
     }
   }
