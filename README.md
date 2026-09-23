@@ -44,6 +44,8 @@ Without this, progress is saved in your browser only. To sign in and continue on
    ```
 6. Restart / redeploy, click **Sign in** in the navbar, and enter your email.
 
+**Deployed on Vercel with its Supabase integration?** Skip steps 1 and 5: Vercel already provides `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY`, which the app reads. Just run the SQL (step 2) in that database, set the Site URL to your Vercel address (step 3), and redeploy.
+
 Progress already saved on a device is merged into your account the first time you sign in there, so nothing is lost.
 
 ## AI Chat Setup
