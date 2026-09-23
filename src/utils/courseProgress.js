@@ -1,5 +1,7 @@
 // Course progress persisted in localStorage: completed days, quiz scores,
 // a history of recent classes, and where you left off in each lesson.
+import { readLocal, writeLocal } from './storage'
+
 const KEYS = {
   completed: 'italianTutor_courseProgress', // [day, ...] (kept from the original format)
   scores:    'italianTutor_courseScores',   // { [day]: bestPct }
@@ -10,17 +12,8 @@ const KEYS = {
 const HISTORY_LIMIT = 50
 export const PASS_PCT = 70
 
-const read = (key, fallback) => {
-  try {
-    const v = JSON.parse(localStorage.getItem(key))
-    return v ?? fallback
-  } catch {
-    return fallback
-  }
-}
-const write = (key, value) => {
-  try { localStorage.setItem(key, JSON.stringify(value)) } catch { /* storage unavailable */ }
-}
+const read  = readLocal
+const write = writeLocal
 
 export const loadProgress = () => ({
   completed: read(KEYS.completed, []),
