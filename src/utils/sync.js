@@ -1,7 +1,8 @@
 // Syncs saved progress with your account so you can continue on any device.
-// Everything is stored as one JSON row per user; each sync merges this device's
-// progress with the account's, so nothing studied on either side is lost.
-import { supabase } from '../lib/supabase'
+// Everything is stored as one JSON file in a private gist on your GitHub account;
+// each sync merges this device's progress with the saved copy, so nothing studied
+// on either side is lost.
+import { readProgress, writeProgress } from '../lib/github'
 import { readLocal, writeLocal } from './storage'
 
 const union   = (a = [], b = []) => [...new Set([...a, ...b])]
@@ -53,13 +54,10 @@ const merge = (local, remote) => {
 }
 
 // Pull, merge, save locally and push. Returns true if this device's progress changed.
-export async function syncProgress(userId) {
-  const { data: row, error } = await supabase
-    .from('progress').select('data').eq('user_id', userId).maybeSingle()
-  if (error) throw error
-
+export async function syncProgress(token) {
+  const remote = await readProgress(token)
   const local  = localSnapshot()
-  const merged = merge(local, row?.data ?? {})
+  const merged = merge(local, remote ?? {})
 
   let changed = false
   for (const [key, value] of Object.entries(merged)) {
@@ -69,11 +67,6 @@ export async function syncProgress(userId) {
     }
   }
 
-  if (JSON.stringify(merged) !== JSON.stringify(row?.data ?? null)) {
-    const { error: upErr } = await supabase
-      .from('progress')
-      .upsert({ user_id: userId, data: merged, updated_at: new Date().toISOString() })
-    if (upErr) throw upErr
-  }
+  if (JSON.stringify(merged) !== JSON.stringify(remote)) await writeProgress(token, merged)
   return changed
 }

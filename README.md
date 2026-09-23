@@ -10,7 +10,7 @@ A beautiful, full-featured Italian language learning app built with React + Vite
 | 🃏 **Flashcards** | 1000 words (A1–C1) with 3D flip animation, level/category filters, and progress tracking |
 | 📚 **Grammar** | 8 lessons with reference tables, highlighted examples, and completion tracking |
 | ✏️ **Quizzes** | Italian↔English translation quiz with instant feedback and scoring (A–F grade) |
-| 👤 **Sign-in & sync** | Sign in with your email (no password) to save progress to your account and continue on any device |
+| 👤 **Sign-in & sync** | Sign in with GitHub to save progress (in a private gist) and continue on any device |
 | 💬 **AI Chat** | Conversation practice with "Sofia", powered by Claude (Anthropic API) |
 
 ## Quick Start
@@ -31,22 +31,16 @@ Open [http://localhost:5173](http://localhost:5173) in your browser.
 
 ## Sign-in & sync (optional)
 
-Without this, progress is saved in your browser only. To sign in and continue on any device, connect a free [Supabase](https://supabase.com) project:
+Without this, progress is saved in your browser only. With it, you **Sign in with GitHub** and your progress is saved to a private gist on your GitHub account, so you can continue on any device. No database needed. It uses two small Vercel functions in `api/auth/` for the GitHub login.
 
-1. Create a project at [supabase.com](https://supabase.com).
-2. Open **SQL Editor**, paste in [`supabase/schema.sql`](supabase/schema.sql) and click **Run**.
-3. Go to **Authentication → URL Configuration** and set **Site URL** to where the app runs (e.g. `http://localhost:5173` or your deployed URL). Add any other URLs you use under **Redirect URLs**.
-4. *(Optional, recommended)* In **Authentication → Emails → Magic Link**, add `{{ .Token }}` to the email so it also contains a code. Then you can open the email on your phone and type the code into your laptop.
-5. Copy **Project URL** and the **anon public** key from **Project Settings → API** into `.env` (or your host's environment variables):
-   ```
-   VITE_SUPABASE_URL=https://your-project.supabase.co
-   VITE_SUPABASE_ANON_KEY=your-anon-key
-   ```
-6. Restart / redeploy, click **Sign in** in the navbar, and enter your email.
+1. On GitHub go to **Settings → Developer settings → OAuth Apps → New OAuth App**:
+   - **Homepage URL:** your site, e.g. `https://italian-tutor-iota.vercel.app`
+   - **Authorization callback URL:** `https://italian-tutor-iota.vercel.app/api/auth/callback`
+2. Copy the **Client ID**, click **Generate a new client secret** and copy it.
+3. In Vercel → your project → **Settings → Environment Variables**, add `GITHUB_CLIENT_ID` and `GITHUB_CLIENT_SECRET`, then redeploy.
+4. Open the site, click **Sign in**, then **Sign in with GitHub**.
 
-**Deployed on Vercel with its Supabase integration?** Skip steps 1 and 5: Vercel already provides `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY`, which the app reads. Just run the SQL (step 2) in that database, set the Site URL to your Vercel address (step 3), and redeploy.
-
-Progress already saved on a device is merged into your account the first time you sign in there, so nothing is lost.
+Progress already saved on a device is merged into your account the first time you sign in there, so nothing is lost. To run sign-in locally, use `vercel dev` (the plain Vite dev server doesn't run the `api/` functions).
 
 ## AI Chat Setup
 

@@ -20,12 +20,12 @@ export default function Navbar() {
     <Link
       to="/account"
       onClick={() => setOpen(false)}
-      title={user ? `Signed in as ${user.email}` : 'Sign in to sync your progress'}
+      title={user ? `Signed in as @${user.login}` : 'Sign in to sync your progress'}
       className={`flex items-center gap-2 rounded-lg text-sm font-medium transition-all ${extra}
         ${location.pathname === '/account' ? 'bg-terra-500 text-white' : 'text-gray-300 hover:text-white hover:bg-white/10'}`}
     >
       {user
-        ? <span className="w-6 h-6 rounded-full bg-gold text-navy-900 flex items-center justify-center text-xs font-bold">{user.email?.[0]?.toUpperCase()}</span>
+        ? <img src={user.avatar} alt="" className="w-6 h-6 rounded-full" />
         : <span>👤</span>}
       <span>{user ? 'Account' : 'Sign in'}</span>
     </Link>
