@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { vocabulary, levels } from '../data/vocabulary'
 import { sentences } from '../data/sentences'
+import { readLocal, writeLocal } from '../utils/storage'
 
 export default function Flashcards() {
   const [selectedLevels, setSelectedLevels]     = useState(['A1'])
@@ -14,18 +15,18 @@ export default function Flashcards() {
   const [sessionComplete, setSessionComplete]   = useState(false)
 
   useEffect(() => {
-    setKnownWords(JSON.parse(localStorage.getItem('italianTutor_knownWords') || '[]'))
-    setKnownSentences(JSON.parse(localStorage.getItem('italianTutor_knownSentences') || '[]'))
+    setKnownWords(readLocal('italianTutor_knownWords', []))
+    setKnownSentences(readLocal('italianTutor_knownSentences', []))
   }, [])
 
   const saveKnown = (words) => {
     setKnownWords(words)
-    localStorage.setItem('italianTutor_knownWords', JSON.stringify(words))
+    writeLocal('italianTutor_knownWords', words)
   }
 
   const saveKnownSentences = (ids) => {
     setKnownSentences(ids)
-    localStorage.setItem('italianTutor_knownSentences', JSON.stringify(ids))
+    writeLocal('italianTutor_knownSentences', ids)
   }
 
   // Derive filtered card list — words plus (optionally) sentences, tagged by kind

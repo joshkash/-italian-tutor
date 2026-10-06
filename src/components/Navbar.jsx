@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
+import { useAuth } from '../context/AuthContext'
 
 const navLinks = [
   { to: '/',           label: 'Home',       icon: '🏠' },
@@ -13,6 +14,22 @@ const navLinks = [
 export default function Navbar() {
   const location = useLocation()
   const [open, setOpen] = useState(false)
+  const { user } = useAuth()
+
+  const accountLink = (extra = '') => (
+    <Link
+      to="/account"
+      onClick={() => setOpen(false)}
+      title={user ? `Signed in as @${user.login}` : 'Sign in to sync your progress'}
+      className={`flex items-center gap-2 rounded-lg text-sm font-medium transition-all ${extra}
+        ${location.pathname === '/account' ? 'bg-terra-500 text-white' : 'text-gray-300 hover:text-white hover:bg-white/10'}`}
+    >
+      {user
+        ? <img src={user.avatar} alt="" className="w-6 h-6 rounded-full" />
+        : <span>👤</span>}
+      <span>{user ? 'Account' : 'Sign in'}</span>
+    </Link>
+  )
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-navy-900 shadow-lg">
@@ -32,7 +49,7 @@ export default function Navbar() {
         </Link>
 
         {/* Desktop links */}
-        <div className="hidden md:flex items-center gap-1">
+        <div className="hidden lg:flex items-center gap-1">
           {navLinks.map(link => (
             <Link
               key={link.to}
@@ -40,7 +57,7 @@ export default function Navbar() {
               className={`
                 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200
                 flex items-center gap-1.5
-                ${location.pathname === link.to
+                ${(link.to === '/' ? location.pathname === '/' : location.pathname.startsWith(link.to))
                   ? 'bg-terra-500 text-white'
                   : 'text-gray-300 hover:text-white hover:bg-white/10'}
               `}
@@ -49,11 +66,12 @@ export default function Navbar() {
               <span>{link.label}</span>
             </Link>
           ))}
+          <div className="ml-2 pl-2 border-l border-white/10">{accountLink('px-3 py-2')}</div>
         </div>
 
         {/* Mobile hamburger */}
         <button
-          className="md:hidden text-white p-2 rounded-lg hover:bg-white/10 transition-colors"
+          className="lg:hidden text-white p-2 rounded-lg hover:bg-white/10 transition-colors"
           onClick={() => setOpen(!open)}
           aria-label="Toggle menu"
         >
@@ -67,7 +85,7 @@ export default function Navbar() {
 
       {/* Mobile menu */}
       {open && (
-        <div className="md:hidden bg-navy-900 border-t border-white/10 px-4 py-3 flex flex-col gap-1">
+        <div className="lg:hidden bg-navy-900 border-t border-white/10 px-4 py-3 flex flex-col gap-1">
           {navLinks.map(link => (
             <Link
               key={link.to}
@@ -75,7 +93,7 @@ export default function Navbar() {
               onClick={() => setOpen(false)}
               className={`
                 px-4 py-3 rounded-xl text-sm font-medium transition-all flex items-center gap-2
-                ${location.pathname === link.to
+                ${(link.to === '/' ? location.pathname === '/' : location.pathname.startsWith(link.to))
                   ? 'bg-terra-500 text-white'
                   : 'text-gray-300 hover:text-white hover:bg-white/10'}
               `}
@@ -84,6 +102,7 @@ export default function Navbar() {
               <span>{link.label}</span>
             </Link>
           ))}
+          {accountLink('px-4 py-3 rounded-xl border-t border-white/10 mt-1')}
         </div>
       )}
     </nav>

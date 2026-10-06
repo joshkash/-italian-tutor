@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
+import { readLocal, writeLocal } from '../utils/storage'
 
 const LEVEL_DESC = {
   A1: 'Beginner — mostly English with Italian phrases',
@@ -86,8 +87,8 @@ export default function AIChat() {
       setMessages(prev => [...prev, { role: 'assistant', content: reply }])
 
       // Persist chat count
-      const s = JSON.parse(localStorage.getItem('italianTutor_chatStats') || '{"count":0}')
-      localStorage.setItem('italianTutor_chatStats', JSON.stringify({ count: s.count + 1 }))
+      const s = readLocal('italianTutor_chatStats', { count: 0 })
+      writeLocal('italianTutor_chatStats', { count: s.count + 1 })
     } catch (e) {
       setError(`Error: ${e.message}. Check your API key.`)
     } finally {

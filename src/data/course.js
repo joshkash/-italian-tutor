@@ -102,3 +102,24 @@ export const courseDays = [
   { day: 99, title: 'Review: Life, Work & Ideas', level: 'B1', grammarId: null, goal: 'Consolidate the thematic vocabulary from days 69-97 - tech, business, science, travel and more.', tip: 'Try explaining your job, a hobby, and an opinion out loud in Italian using only what you have learned so far.' },
   { day: 100, title: 'Graduation — 1000 Words! 🎉', level: 'B2', grammarId: null, goal: 'Celebrate finishing the course — you have built a working vocabulary of 1000 Italian words!', tip: 'Complimenti! You now have the vocabulary to hold real conversations. Keep it alive with the AI Chat and revisit old flashcards often. In bocca al lupo per il tuo italiano! 🐺' },
 ]
+
+// The course is grouped into 10 units of 10 days each.
+export const courseUnits = [
+  { unit: 1,  title: 'First Steps',              from: 1,  to: 10,  desc: 'Greetings, articles, family and your first verbs.' },
+  { unit: 2,  title: 'Everyday Life',            from: 11, to: 20,  desc: 'Routines, the home, getting around, and the past tense.' },
+  { unit: 3,  title: 'Expressing Yourself',      from: 21, to: 30,  desc: 'Feelings, work, the future, being polite and the subjunctive.' },
+  { unit: 4,  title: 'Numbers, Time & Food',     from: 31, to: 40,  desc: 'Counting, the calendar, health and the Italian table.' },
+  { unit: 5,  title: 'Home, Shopping & Nature',  from: 41, to: 50,  desc: 'Around the house, in the shops and out in the world.' },
+  { unit: 6,  title: 'City, Work & Verbs',       from: 51, to: 60,  desc: 'Transport, professions and a big block of core verbs.' },
+  { unit: 7,  title: 'Describing the World',     from: 61, to: 70,  desc: 'Adjectives, emotions and technology.' },
+  { unit: 8,  title: 'Hobbies, Dining & Money',  from: 71, to: 80,  desc: 'Free time, eating out, abstract ideas and business.' },
+  { unit: 9,  title: 'Ideas & Society',          from: 81, to: 90,  desc: 'Connectors, media, science, law and idioms.' },
+  { unit: 10, title: 'Travel & Graduation',      from: 91, to: 100, desc: 'Travel, everyday objects, final reviews and graduation.' },
+]
+
+export const unitForDay = (day) => courseUnits.find(u => day >= u.from && day <= u.to)
+
+// Review days have few or no new words — their checkpoint quiz draws from these day ranges.
+export const reviewRanges = {
+  14: [8, 13], 21: [15, 20], 30: [22, 29], 98: [54, 68], 99: [69, 97], 100: [1, 97],
+}

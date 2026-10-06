@@ -6,10 +6,11 @@ A beautiful, full-featured Italian language learning app built with React + Vite
 
 | Feature | What it does |
 |---|---|
-| 📅 **100-Day Course** | A guided day-by-day path (A1→C1): each day has a theme, vocabulary, a grammar focus, a cultural tip, and progress tracking |
+| 📅 **100-Day Course** | 10 units of 10 lessons (A1→B2). Each lesson walks you through an overview, vocabulary, key sentences and grammar, then a checkpoint quiz — score 70% to complete the day and unlock the next. Your place in each lesson, quiz scores and recent classes are saved so you can pick up where you left off |
 | 🃏 **Flashcards** | 1000 words (A1–C1) with 3D flip animation, level/category filters, and progress tracking |
 | 📚 **Grammar** | 8 lessons with reference tables, highlighted examples, and completion tracking |
 | ✏️ **Quizzes** | Italian↔English translation quiz with instant feedback and scoring (A–F grade) |
+| 👤 **Sign-in & sync** | Sign in with GitHub to save progress (in a private gist) and continue on any device |
 | 💬 **AI Chat** | Conversation practice with "Sofia", powered by Claude (Anthropic API) |
 
 ## Quick Start
@@ -27,6 +28,19 @@ npm run dev
 ```
 
 Open [http://localhost:5173](http://localhost:5173) in your browser.
+
+## Sign-in & sync (optional)
+
+Without this, progress is saved in your browser only. With it, you **Sign in with GitHub** and your progress is saved to a private gist on your GitHub account, so you can continue on any device. No database needed. It uses two small Vercel functions in `api/auth/` for the GitHub login.
+
+1. On GitHub go to **Settings → Developer settings → OAuth Apps → New OAuth App**:
+   - **Homepage URL:** your site, e.g. `https://italian-tutor-iota.vercel.app`
+   - **Authorization callback URL:** `https://italian-tutor-iota.vercel.app/api/auth/callback`
+2. Copy the **Client ID**, click **Generate a new client secret** and copy it.
+3. In Vercel → your project → **Settings → Environment Variables**, add `GITHUB_CLIENT_ID` and `GITHUB_CLIENT_SECRET`, then redeploy.
+4. Open the site, click **Sign in**, then **Sign in with GitHub**.
+
+Progress already saved on a device is merged into your account the first time you sign in there, so nothing is lost. To run sign-in locally, use `vercel dev` (the plain Vite dev server doesn't run the `api/` functions).
 
 ## AI Chat Setup
 

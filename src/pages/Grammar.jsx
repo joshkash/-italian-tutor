@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { grammarLessons } from '../data/grammar'
+import { readLocal, writeLocal } from '../utils/storage'
 
 const levelBadge = {
   A1: 'bg-green-100 text-green-700',
@@ -34,7 +35,7 @@ export default function Grammar() {
   const [completed, setCompleted]         = useState([])
 
   useEffect(() => {
-    setCompleted(JSON.parse(localStorage.getItem('italianTutor_completedLessons') || '[]'))
+    setCompleted(readLocal('italianTutor_completedLessons', []))
   }, [])
 
   const toggleComplete = (id) => {
@@ -42,7 +43,7 @@ export default function Grammar() {
       ? completed.filter(x => x !== id)
       : [...completed, id]
     setCompleted(next)
-    localStorage.setItem('italianTutor_completedLessons', JSON.stringify(next))
+    writeLocal('italianTutor_completedLessons', next)
   }
 
   // Group lessons by level
